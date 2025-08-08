@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -182,6 +183,7 @@
       alert('Notificaciones activadas.');
       scheduleAllReminders();
     });
+
     function playBeep(){
       try{
         const ctx = new (window.AudioContext||window.webkitAudioContext)();
@@ -195,23 +197,21 @@
         o.start(); o.stop(ctx.currentTime + 0.26);
       }catch(e){ /* ignore */ }
     }
+
+    // Notificación del sistema (suena en 2º plano) + beep cuando está en primer plano
     async function fire(title, body){
-  if(Notification.permission !== 'granted') return;
-  // Notificación del sistema (suena aunque esté en segundo plano)
-  try {
-    const reg = await navigator.serviceWorker.getRegistration();
-    if (reg) {
-      reg.showNotification(title, { body, icon: 'assets/icon-192.png' });
-    } else {
-      new Notification(title, { body, icon: 'assets/icon-192.png' });
-    }
-  } catch (e) {
-    new Notification(title, { body, icon: 'assets/icon-192.png' });
-  }
-  // Beep adicional cuando la app está abierta
-  try { playBeep(); } catch(e) {}
-}
+      if (Notification.permission !== 'granted') return;
+      try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (reg) {
+          await reg.showNotification(title, { body, icon: 'assets/icon-192.png' });
+        } else {
+          new Notification(title, { body, icon: 'assets/icon-192.png' });
+        }
+      } catch (e) {
+        new Notification(title, { body, icon: 'assets/icon-192.png' });
       }
+      try { playBeep(); } catch(e) {}
     }
 
     // ===== Storage =====
@@ -530,3 +530,4 @@
   </script>
 </body>
 </html>
+
